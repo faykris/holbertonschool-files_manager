@@ -10,8 +10,8 @@ const AppController = class AppController {
     let files = 0;
 
     (async () => {
-      users = await dbClient.nbUsers()
-      files = await dbClient.nbFiles()
+      users = await dbClient.nbUsers();
+      files = await dbClient.nbFiles();
     })();
 
     return { "users": users, "files": files };
