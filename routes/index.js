@@ -16,7 +16,7 @@ app.get('/stats',(req, res) => {
 app.post('/users',(req, res) => {
   (async () => {
     const response = await usersController.postNew(req.body.email, req.body.password);
-    console.log(response);
+
     if (response['error']) res.status(400);
     else res.status(201);
 
