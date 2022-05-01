@@ -18,11 +18,11 @@ const app = express();
 app.use(express.json());
 
 app.get('/status', (req, res) => {
-  res.json(AppController.getStatus());
+  res.status(200).json(AppController.getStatus());
 });
 
 app.get('/stats', (req, res) => {
-  res.json(AppController.getStats());
+  res.status(200).json(AppController.getStats());
 });
 
 app.post('/users', (req, res) => {
