@@ -22,7 +22,9 @@ app.get('/status', (req, res) => {
 });
 
 app.get('/stats', (req, res) => {
-  res.status(200).json(AppController.getStats());
+  (async () => {
+    res.status(200).json(await AppController.getStats());
+  })();
 });
 
 app.post('/users', (req, res) => {
