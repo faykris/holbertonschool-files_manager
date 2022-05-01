@@ -1,11 +1,9 @@
 import express from 'express';
-import appController from '../controllers/AppController';
-import usersController from '../controllers/UsersController';
-import authController from '../controllers/AuthController';
-import filesController from '../controllers/FilesController';
-
-const app = express();
-app.use(express.json());
+import AppController from '../controllers/AppController';
+import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
+/*
+import FilesController from '../controllers/FilesController';
 
 const errors = {
   'Missing data': 400,
@@ -15,18 +13,21 @@ const errors = {
   'Parent is not a folder': 400,
   Unauthorized: 401,
 };
+*/
+const app = express();
+app.use(express.json());
 
 app.get('/status', (req, res) => {
-  res.json(appController.getStatus());
+  res.json(AppController.getStatus());
 });
 
 app.get('/stats', (req, res) => {
-  res.json(appController.getStats());
+  res.json(AppController.getStats());
 });
 
 app.post('/users', (req, res) => {
   (async () => {
-    const response = await usersController.postNew(req.body.email, req.body.password);
+    const response = await UsersController.postNew(req.body.email, req.body.password);
 
     if (response.error) res.status(400);
     else res.status(201);
@@ -38,7 +39,7 @@ app.post('/users', (req, res) => {
 app.get('/connect', (req, res) => {
   (async () => {
     if (req.headers.authorization) {
-      const response = await authController.getConnect(req.headers.authorization);
+      const response = await AuthController.getConnect(req.headers.authorization);
 
       if (response.error) res.status(401);
       else res.status(200).set('X-Token', response.token);
@@ -52,7 +53,7 @@ app.get('/connect', (req, res) => {
 app.get('/disconnect', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
-      const response = await authController.getDisconnect(req.headers['x-token']);
+      const response = await AuthController.getDisconnect(req.headers['x-token']);
 
       if (response.error) res.status(401).json(response);
       else res.status(204).send('');
@@ -65,7 +66,7 @@ app.get('/disconnect', (req, res) => {
 app.get('/users/me', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
-      const response = await usersController.getMe(req.headers['x-token']);
+      const response = await UsersController.getMe(req.headers['x-token']);
 
       if (response.error) res.status(401).json(response);
       else res.status(200).json(response);
@@ -74,11 +75,11 @@ app.get('/users/me', (req, res) => {
     }
   })();
 });
-
+/*
 app.post('/files', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
-      const file = await filesController.postUpload(req.headers['x-token'], req.body);
+      const file = await FilesController.postUpload(req.headers['x-token'], req.body);
 
       if (file.error) res.status(errors[file.error]).json(file);
       else if (file.type === 'folder') res.status(201).send('');
@@ -88,5 +89,5 @@ app.post('/files', (req, res) => {
     } else res.status(401).json({ error: 'Unauthorized' });
   })();
 });
-
+*/
 export default app;
