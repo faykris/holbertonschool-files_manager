@@ -12,23 +12,25 @@ const AuthController = class AuthController {
 
   async getConnect(base64Auth) {
     const encoded = base64Auth.split(' ')[1];
-    const decoded = Buffer.from(encoded, 'base64').toString();
-    const email = decoded.split(':')[0];
-    const password = decoded.split(':')[1];
-    const sha = crypto.createHash('sha1');
-    sha.update(password);
-    const hashPass = sha.digest('hex');
-
-    const db = dbClient.client.db(dbClient.database);
-    const collection = db.collection(this.collection);
-    const findUser = await collection.findOne({ email, password: hashPass });
-
-    if (findUser !== null) {
-      const uuidString = uuidv4();
-      await redisClient.set(`${this.auth_text}${uuidString}`,
-        findUser._id.toString(),
-        this.duration);
-      return { token: uuidString };
+    if (encoded) {
+      const decoded = Buffer.from(encoded, 'base64').toString();
+      const email = decoded.split(':')[0];
+      const password = decoded.split(':')[1];
+      if (email && password) {
+        const sha = crypto.createHash('sha1');
+        sha.update(password);
+        const hashPass = sha.digest('hex');
+        const db = dbClient.client.db(dbClient.database);
+        const collection = db.collection(this.collection);
+        const findUser = await collection.findOne({ email, password: hashPass });
+        if (findUser !== null) {
+          const uuidString = uuidv4();
+          await redisClient.set(`${this.auth_text}${uuidString}`,
+            findUser._id.toString(),
+            this.duration);
+          return { token: uuidString };
+        }
+      }
     }
     return { error: 'Unauthorized' };
   }
