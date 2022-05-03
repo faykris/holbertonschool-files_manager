@@ -41,7 +41,7 @@ const FilesController = class FilesController {
                     return { error: 'invalid base64 decode' };
                   }
                   const file = await collection.insertOne({
-                    userId, name, type, isPublic, parentId, localPath,
+                    userId, name, type, parentId, isPublic, localPath,
                   });
                   return {
                     id: file.insertedId, userId, name, type, isPublic, parentId: parentIdBody,
@@ -56,10 +56,10 @@ const FilesController = class FilesController {
               return { error: 'invalid base64 decode' };
             }
             const file = await collection.insertOne({
-              userId, name, type, isPublic, parentId, localPath,
+              userId, name, type, parentId, isPublic, localPath,
             });
             return {
-              id: file.insertedId, userId, name, type, isPublic, parentId,
+              id: file.insertedId, userId, name, type, isPublic, parentId: 0,
             };
           } if (type === types[0]) {
             if (parentIdBody !== '0' && parent === null) {
@@ -69,10 +69,10 @@ const FilesController = class FilesController {
               return { error: 'Parent is not a folder' };
             }
             const file = await collection.insertOne({
-              userId, name, type, isPublic, parentId,
+              userId, name, type, parentId, // remove isPublic field from document
             });
             return {
-              id: file.insertedId, userId, name, type, isPublic, parentId,
+              id: file.insertedId, userId, name, type, isPublic, parentId: parentId !== '0' ? parentId : 0,
             };
           } return { error: 'Missing data' };
         } return { error: 'Missing type' };
