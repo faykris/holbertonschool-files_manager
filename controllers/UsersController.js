@@ -1,8 +1,7 @@
 import crypto from 'crypto';
+import { ObjectId } from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-
-const ObjectId = require('mongodb').ObjectID;
 
 const UsersController = class UsersController {
   constructor() {
@@ -34,10 +33,8 @@ const UsersController = class UsersController {
     if (userId !== null) {
       const db = await dbClient.client.db(dbClient.database);
       const collection = await db.collection(this.collection);
-      const user = await collection.findOne({ _id: new ObjectId(userId) });
-      if (user !== null) {
-        return { id: user._id, email: user.email };
-      }
+      const user = await collection.findOne({ _id: ObjectId(userId) });
+      if (user !== null) return { id: user._id, email: user.email };
     }
     return { error: 'Unauthorized' };
   }

@@ -2,9 +2,8 @@ import express from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
 import AuthController from '../controllers/AuthController';
-/*
 import FilesController from '../controllers/FilesController';
-*/
+
 const errors = {
   'Already exist': 400,
   'Missing data': 400,
@@ -12,6 +11,7 @@ const errors = {
   'Missing name': 400,
   'Missing password': 400,
   'Missing type': 400,
+  'invalid base64 decode': 400,
   'Parent not found': 400,
   'Parent is not a folder': 400,
   Unauthorized: 401,
@@ -42,7 +42,6 @@ app.post('/users', (req, res) => {
 
     if (response.error) res.status(errors[response.error]);
     else res.status(success.created);
-
     res.json(response);
   })();
 });
@@ -55,9 +54,7 @@ app.get('/connect', (req, res) => {
       if (response.error) res.status(errors[response.error]);
       else res.status(200).set('X-Token', response.token);
       res.json(response);
-    } else {
-      res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
-    }
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
 });
 
@@ -68,9 +65,7 @@ app.get('/disconnect', (req, res) => {
 
       if (response.error) res.status(401).json(response);
       else res.status(success.no_content).send('');
-    } else {
-      res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
-    }
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
 });
 
@@ -81,24 +76,19 @@ app.get('/users/me', (req, res) => {
 
       if (response.error) res.status(errors[response.error]).json(response);
       else res.status(success.ok).json(response);
-    } else {
-      res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
-    }
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
 });
-/*
+
 app.post('/files', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
       const file = await FilesController.postUpload(req.headers['x-token'], req.body);
 
       if (file.error) res.status(errors[file.error]).json(file);
-      else if (file.type === 'folder') res.status(201).send('');
-      else {
-        res.status(201).json(file);
-      }
+      else res.status(201).json(file);
     } else res.status(401).json({ error: 'Unauthorized' });
   })();
 });
-*/
+
 export default app;
