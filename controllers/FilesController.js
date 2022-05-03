@@ -65,6 +65,9 @@ const FilesController = class FilesController {
             if (parentIdBody !== '0' && parent === null) {
               return { error: 'Parent not found' };
             }
+            if (parent && parent.type !== 'folder') {
+              return { error: 'Parent is not a folder' };
+            }
             const file = await collection.insertOne({
               userId, name, type, isPublic, parentId,
             });
