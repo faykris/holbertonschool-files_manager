@@ -63,7 +63,7 @@ app.get('/disconnect', (req, res) => {
     if (req.headers['x-token']) {
       const response = await AuthController.getDisconnect(req.headers['x-token']);
 
-      if (response.error) res.status(401).json(response);
+      if (response.error) res.status(errors[response.error]).json(response);
       else res.status(success.no_content).send('');
     } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
@@ -86,8 +86,8 @@ app.post('/files', (req, res) => {
       const file = await FilesController.postUpload(req.headers['x-token'], req.body);
 
       if (file.error) res.status(errors[file.error]).json(file);
-      else res.status(201).json(file);
-    } else res.status(401).json({ error: 'Unauthorized' });
+      else res.status(success.created).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
 });
 
