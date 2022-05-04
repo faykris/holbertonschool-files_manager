@@ -11,10 +11,11 @@ const errors = {
   'Missing name': 400,
   'Missing password': 400,
   'Missing type': 400,
-  'invalid base64 decode': 400,
+  'Invalid base64 decode': 400,
   'Parent not found': 400,
   'Parent is not a folder': 400,
   Unauthorized: 401,
+  'Not found': 404,
 };
 
 const success = {
@@ -87,6 +88,28 @@ app.post('/files', (req, res) => {
 
       if (file.error) res.status(errors[file.error]).json(file);
       else res.status(success.created).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+  })();
+});
+
+app.get('/files/:id', (req, res) => {
+  (async () => {
+    if (req.headers['x-token']) {
+      const file = await FilesController.getShow(req.headers['x-token'], req.params.id);
+
+      if (file.error) res.status(errors[file.error]).json(file);
+      else res.status(success.ok).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+  })();
+});
+
+app.get('/files/', (req, res) => {
+  (async () => {
+    if (req.headers['x-token']) {
+      const file = await FilesController.getIndex(req.headers['x-token'], req.query);
+
+      if (file.error) res.status(errors[file.error]).json(file);
+      else res.status(success.ok).json(file);
     } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
   })();
 });

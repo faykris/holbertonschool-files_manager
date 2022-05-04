@@ -38,7 +38,7 @@ const FilesController = class FilesController {
                     await promises.mkdir(folderPath, { recursive: true });
                     await promises.writeFile(localPath, data);
                   } catch (e) {
-                    return { error: 'invalid base64 decode' };
+                    return { error: 'Invalid base64 decode' };
                   }
                   const file = await collection.insertOne({
                     userId, name, type, parentId, isPublic, localPath,
@@ -53,7 +53,7 @@ const FilesController = class FilesController {
               await promises.mkdir(folderPath, { recursive: true });
               await promises.writeFile(localPath, data);
             } catch (e) {
-              return { error: 'invalid base64 decode' };
+              return { error: 'Invalid base64 decode' };
             }
             const file = await collection.insertOne({
               userId, name, type, parentId, isPublic, localPath,
@@ -77,6 +77,76 @@ const FilesController = class FilesController {
           } return { error: 'Missing data' };
         } return { error: 'Missing type' };
       } return { error: 'Missing name' };
+    } return { error: 'Unauthorized' };
+  }
+
+  static async getShow(token, id) {
+    const user = await usersController.getMe(token);
+    const userId = user ? user.id : undefined;
+    const db = await dbClient.client.db(dbClient.database);
+    const collection = await db.collection('files');
+
+    if (!user.error) {
+      try {
+        const file = await collection.findOne({
+          _id: ObjectId(id), userId: ObjectId(userId),
+        });
+        const parentId = file.parentId !== '0' ? file.parentId : 0;
+        return {
+          id: file._id, userId, name: file.name, type: file.type, isPublic: file.isPublic, parentId,
+        };
+      } catch (e) {
+        return { error: 'Not found' };
+      }
+    } return { error: 'Unauthorized' };
+  }
+
+  static async getIndex(token, query) {
+    const user = await usersController.getMe(token);
+    const userId = user ? user.id : undefined;
+    const db = await dbClient.client.db(dbClient.database);
+    const collection = await db.collection('files');
+    const page = query.page && !Number.isNaN(query.page) ? Number(query.page) : 0;
+    const pageSize = 20;
+
+    if (!user.error) {
+      let filesList;
+      try {
+        if (query.parentId) {
+          filesList = await collection.aggregate([
+            {
+              $match: {
+                parentId: ObjectId(query.parentId), userId: ObjectId(userId),
+              },
+            }, { $skip: page * pageSize }, { $limit: pageSize },
+          ]);
+        } else {
+          filesList = await collection.aggregate([
+            {
+              $match: {
+                userId: ObjectId(userId),
+              },
+            }, { $skip: page * pageSize }, { $limit: pageSize },
+          ]);
+        }
+        if (filesList) {
+          const newList = [];
+          await filesList.forEach((file) => {
+            const parentId = file.parentId !== '0' ? file.parentId : 0;
+            newList.push({
+              id: file._id,
+              userId,
+              name: file.name,
+              type: file.type,
+              isPublic: file.isPublic,
+              parentId,
+            });
+          });
+          return newList;
+        } return [];
+      } catch (e) {
+        return [];
+      }
     } return { error: 'Unauthorized' };
   }
 };
