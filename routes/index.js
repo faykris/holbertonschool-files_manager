@@ -103,7 +103,7 @@ app.get('/files/:id', (req, res) => {
   })();
 });
 
-app.get('/files/', (req, res) => {
+app.get('/files', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
       const file = await FilesController.getIndex(req.headers['x-token'], req.query);

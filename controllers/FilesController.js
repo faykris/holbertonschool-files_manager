@@ -106,7 +106,7 @@ const FilesController = class FilesController {
     const userId = user ? user.id : undefined;
     const db = await dbClient.client.db(dbClient.database);
     const collection = await db.collection('files');
-    const page = query.page && !Number.isNaN(query.page) ? Number(query.page) : 0;
+    const page = query.page && !Number.isNaN(Number(query.page)) ? Number(query.page) : 0;
     const pageSize = 20;
 
     if (!user.error) {
