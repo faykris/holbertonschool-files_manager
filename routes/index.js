@@ -114,4 +114,26 @@ app.get('/files', (req, res) => {
   })();
 });
 
+app.put('/files/:id/publish', (req, res) => {
+  (async () => {
+    if (req.headers['x-token']) {
+      const file = await FilesController.putPublish(req.headers['x-token'], req.params.id);
+
+      if (file.error) res.status(errors[file.error]).json(file);
+      else res.status(success.ok).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+  })();
+});
+
+app.put('/files/:id/unpublish', (req, res) => {
+  (async () => {
+    if (req.headers['x-token']) {
+      const file = await FilesController.putUnpublish(req.headers['x-token'], req.params.id);
+
+      if (file.error) res.status(errors[file.error]).json(file);
+      else res.status(success.ok).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+  })();
+});
+
 export default app;

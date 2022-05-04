@@ -150,6 +150,44 @@ const FilesController = class FilesController {
       }
     } return { error: 'Unauthorized' };
   }
+
+  static async putPublish(token, id) {
+    const user = await usersController.getMe(token);
+    const userId = user ? user.id : undefined;
+    const file = this.getShow(token, id);
+    const db = await dbClient.client.db(dbClient.database);
+    const collection = await db.collection('files');
+
+    if (!user.error) {
+      if (!file.error) {
+        await collection.updateOne({
+          _id: ObjectId(id), userId,
+        }, {
+          $set: { isPublic: true },
+        });
+        return this.getShow(token, id);
+      } return { error: file.error };
+    } return { error: user.error };
+  }
+
+  static async putUnpublish(token, id) {
+    const user = await usersController.getMe(token);
+    const userId = user ? user.id : undefined;
+    const file = this.getShow(token, id);
+    const db = await dbClient.client.db(dbClient.database);
+    const collection = await db.collection('files');
+
+    if (!user.error) {
+      if (!file.error) {
+        await collection.updateOne({
+          _id: ObjectId(id), userId,
+        }, {
+          $set: { isPublic: false },
+        });
+        return this.getShow(token, id);
+      } return { error: file.error };
+    } return { error: user.error };
+  }
 };
 
 export default FilesController;
