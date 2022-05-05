@@ -133,7 +133,7 @@ const FilesController = class FilesController {
           filesList = await collection.aggregate([
             {
               $match: {
-                userId: ObjectId(userId),
+                parentId: '0', userId: ObjectId(userId),
               },
             }, { $skip: page * pageSize }, { $limit: pageSize },
           ]);
