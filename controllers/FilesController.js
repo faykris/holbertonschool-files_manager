@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import { promises } from 'fs';
+import mime from 'mime-types';
 import usersController from './UsersController';
 import dbClient from '../utils/db';
 
@@ -91,10 +92,17 @@ const FilesController = class FilesController {
         const file = await collection.findOne({
           _id: ObjectId(id), userId: ObjectId(userId),
         });
-        const parentId = file.parentId !== '0' ? file.parentId : 0;
-        return {
-          id: file._id, userId, name: file.name, type: file.type, isPublic: file.isPublic, parentId,
-        };
+        if (file) {
+          const parentId = file.parentId !== '0' ? file.parentId : 0;
+          return {
+            id: file._id,
+            userId,
+            name: file.name,
+            type: file.type,
+            isPublic: file.isPublic,
+            parentId,
+          };
+        } return { error: 'Not found' };
       } catch (e) {
         return { error: 'Not found' };
       }
@@ -189,12 +197,43 @@ const FilesController = class FilesController {
     } return { error: user.error };
   }
 
-  static async getFile(token, id) {
-    const file = this.getShow(token, id);
+  static async getFile(token, id, response) {
+    const user = await usersController.getMe(token);
+    const userId = user ? user.id : undefined;
+    const db = await dbClient.client.db(dbClient.database);
+    const collection = await db.collection('files');
 
-    if (!file.error) {
-      return {};
-    } return { error: file.error };
+    try {
+      let file;
+      if (!user.error) {
+        file = await collection.findOne({
+          _id: ObjectId(id), userId: ObjectId(userId),
+        });
+      } else {
+        file = await collection.findOne({
+          _id: ObjectId(id),
+        });
+      }
+      if (file) {
+        if (file.type !== types[0]) {
+          if ((file.isPublic === false && file.userId.toString() === userId.toString())
+          || file.isPublic === true) {
+            let data;
+            try {
+              data = await promises.readFile(file.localPath);
+              data = data.toString();
+              const mimeType = mime.contentType(file.name);
+              response.setHeader('Content-Type', mimeType);
+              return data;
+            } catch (err) {
+              return { error: 'Not found' };
+            }
+          } return { error: 'Not found' };
+        } return { error: 'A folder doesn\'t have content' };
+      } return { error: 'Not found' };
+    } catch (e) {
+      return { error: 'Not found' };
+    }
   }
 };
 

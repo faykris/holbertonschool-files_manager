@@ -139,12 +139,10 @@ app.put('/files/:id/unpublish', (req, res) => {
 
 app.get('/files/:id/data', (req, res) => {
   (async () => {
-    if (req.headers['x-token']) {
-      const file = await FilesController.getFile(req.headers['x-token'], req.query);
+    const data = await FilesController.getFile(req.headers['x-token'], req.params.id, res);
 
-      if (file.error) res.status(errors[file.error]).json(file);
-      else res.status(success.ok).json(file);
-    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+    if (data.error) res.status(errors[data.error]).json(data);
+    else res.status(success.ok).send(data);
   })();
 });
 
