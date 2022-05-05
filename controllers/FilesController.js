@@ -121,11 +121,11 @@ const FilesController = class FilesController {
       let filesList;
       try {
         if (query.parentId) {
-          const parentId = query.parentId === '0' ? '0' : ObjectId(query.parentId);
+          // const parentId = query.parentId === '0' ? '0' : ObjectId(query.parentId);
           filesList = await collection.aggregate([
             {
               $match: {
-                parentId, userId: ObjectId(userId),
+                userId: ObjectId(userId), // parentId,
               },
             }, { $skip: page * pageSize }, { $limit: pageSize },
           ]);
