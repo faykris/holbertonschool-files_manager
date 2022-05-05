@@ -86,23 +86,15 @@ const FilesController = class FilesController {
     const userId = user ? user.id : undefined;
     const db = await dbClient.client.db(dbClient.database);
     const collection = await db.collection('files');
-
     if (!user.error) {
       try {
         const file = await collection.findOne({
           _id: ObjectId(id), userId: ObjectId(userId),
         });
-        if (file) {
-          // const parentId = file.parentId !== '0' ? file.parentId : 0;
-          return {
-            id: file._id,
-            userId,
-            name: file.name,
-            type: file.type,
-            isPublic: file.isPublic,
-            parentId: file.parentId,
-          };
-        } return { error: 'Not found' };
+        const parentId = file.parentId !== '0' ? file.parentId : 0;
+        return {
+          id: file._id, userId, name: file.name, type: file.type, isPublic: file.isPublic, parentId,
+        };
       } catch (e) {
         return { error: 'Not found' };
       }
