@@ -6,6 +6,7 @@ import FilesController from '../controllers/FilesController';
 
 const errors = {
   'Already exist': 400,
+  'A folder doesn\'t have content': 400,
   'Missing data': 400,
   'Missing email': 400,
   'Missing name': 400,
@@ -129,6 +130,17 @@ app.put('/files/:id/unpublish', (req, res) => {
   (async () => {
     if (req.headers['x-token']) {
       const file = await FilesController.putUnpublish(req.headers['x-token'], req.params.id);
+
+      if (file.error) res.status(errors[file.error]).json(file);
+      else res.status(success.ok).json(file);
+    } else res.status(errors.Unauthorized).json({ error: 'Unauthorized' });
+  })();
+});
+
+app.get('/files/:id/data', (req, res) => {
+  (async () => {
+    if (req.headers['x-token']) {
+      const file = await FilesController.getFile(req.headers['x-token'], req.query);
 
       if (file.error) res.status(errors[file.error]).json(file);
       else res.status(success.ok).json(file);

@@ -69,7 +69,7 @@ const FilesController = class FilesController {
               return { error: 'Parent is not a folder' };
             }
             const file = await collection.insertOne({
-              userId, name, type, parentId, // remove isPublic field from document
+              userId, name, type, isPublic, parentId, // add again isPublic field for folder type
             });
             return {
               id: file.insertedId, userId, name, type, isPublic, parentId: parentId !== '0' ? parentId : 0,
@@ -187,6 +187,14 @@ const FilesController = class FilesController {
         return this.getShow(token, id);
       } return { error: file.error };
     } return { error: user.error };
+  }
+
+  static async getFile(token, id) {
+    const file = this.getShow(token, id);
+
+    if (!file.error) {
+      return {};
+    } return { error: file.error };
   }
 };
 
