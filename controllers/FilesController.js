@@ -93,14 +93,14 @@ const FilesController = class FilesController {
           _id: ObjectId(id), userId: ObjectId(userId),
         });
         if (file) {
-          const parentId = file.parentId !== '0' ? file.parentId : 0;
+          // const parentId = file.parentId !== '0' ? file.parentId : 0;
           return {
             id: file._id,
             userId,
             name: file.name,
             type: file.type,
             isPublic: file.isPublic,
-            parentId,
+            parentId: file.parentId,
           };
         } return { error: 'Not found' };
       } catch (e) {
@@ -133,7 +133,7 @@ const FilesController = class FilesController {
           filesList = await collection.aggregate([
             {
               $match: {
-                parentId: '0', userId: ObjectId(userId),
+                userId: ObjectId(userId), // parentId: '0',
               },
             }, { $skip: page * pageSize }, { $limit: pageSize },
           ]);
