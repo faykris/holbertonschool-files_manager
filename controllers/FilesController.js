@@ -194,20 +194,13 @@ const FilesController = class FilesController {
     const collection = await db.collection('files');
 
     try {
-      let file;
-      if (!user.error) {
-        file = await collection.findOne({
-          _id: ObjectId(id), userId: ObjectId(userId),
-        });
-      } else {
-        file = await collection.findOne({
-          _id: ObjectId(id),
-        });
-      }
+      const file = await collection.findOne({
+        _id: ObjectId(id),
+      });
       if (file) {
-        if (file.type !== types[0]) {
-          if ((file.isPublic === false && file.userId.toString() === userId.toString())
+        if ((file.isPublic === false && file.userId.toString() === userId.toString())
           || file.isPublic === true) {
+          if (file.type !== types[0]) {
             let data;
             try {
               data = await promises.readFile(file.localPath);
@@ -218,8 +211,8 @@ const FilesController = class FilesController {
             } catch (err) {
               return { error: 'Not found' };
             }
-          } return { error: 'Not found' };
-        } return { error: 'A folder doesn\'t have content' };
+          } return { error: 'A folder doesn\'t have content' };
+        } return { error: 'Not found' };
       } return { error: 'Not found' };
     } catch (e) {
       return { error: 'Not found' };
