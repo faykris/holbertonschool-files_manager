@@ -132,14 +132,13 @@ const FilesController = class FilesController {
         if (filesList) {
           const newList = [];
           await filesList.forEach((file) => {
-            const parentId = file.parentId !== '0' ? file.parentId : 0;
             newList.push({
               id: file._id,
               userId,
               name: file.name,
               type: file.type,
               isPublic: file.isPublic,
-              parentId,
+              parentId: file.parentId,
             });
           });
           return newList;
